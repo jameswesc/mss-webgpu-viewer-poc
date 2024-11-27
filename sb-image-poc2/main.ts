@@ -8,19 +8,29 @@ import { loadDataFromURL } from "./loadData";
 const settings = {
     redIndex: 2,
     redDomain: {
-        min: 290,
-        max: 1858,
+        min: 174,
+        max: 2529,
     },
     greenIndex: 1,
     greenDomain: {
-        min: 438,
-        max: 1942,
+        min: 312,
+        max: 2413,
     },
     blueIndex: 0,
     blueDomain: {
-        min: 340,
-        max: 1593,
+        min: 254,
+        max: 2038,
     },
+};
+
+const ndxOptions = {
+    blue: 0,
+    green: 1,
+    red: 2,
+    nir: 3,
+    swir1: 4,
+    swir2: 5,
+    oa_fmask: 6,
 };
 
 type Settings = typeof settings;
@@ -40,36 +50,32 @@ async function main() {
     const redFolder = pane.addFolder({
         title: "Red Channel",
     });
-    const greenFolder = pane.addFolder({
-        title: "Green Channel",
-    });
-    const blueFolder = pane.addFolder({
-        title: "Blue Channel",
-    });
     redFolder.addBinding(settings, "redIndex", {
-        min: 0,
-        max: samples - 1,
-        step: 1,
+        options: ndxOptions,
     });
     redFolder.addBinding(settings, "redDomain", {
         min: 0,
         max: 10_000,
         step: 1,
     });
+
+    const greenFolder = pane.addFolder({
+        title: "Green Channel",
+    });
     greenFolder.addBinding(settings, "greenIndex", {
-        min: 0,
-        max: samples - 1,
-        step: 1,
+        options: ndxOptions,
     });
     greenFolder.addBinding(settings, "greenDomain", {
         min: 0,
         max: 10_000,
         step: 1,
     });
+
+    const blueFolder = pane.addFolder({
+        title: "Blue Channel",
+    });
     blueFolder.addBinding(settings, "blueIndex", {
-        min: 0,
-        max: samples - 1,
-        step: 1,
+        options: ndxOptions,
     });
     blueFolder.addBinding(settings, "blueDomain", {
         min: 0,
@@ -140,7 +146,7 @@ async function main() {
 
     function updateDisplayUniformBufferValues(settings: Settings) {
         displayUniformBufferValuesU32.set(
-            [settings.redIndex, settings.blueIndex, settings.greenIndex],
+            [settings.redIndex, settings.greenIndex, settings.blueIndex],
             sampleIndexOffset,
         );
         displayUniformBufferValuesI32.set(

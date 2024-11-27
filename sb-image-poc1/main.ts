@@ -4,9 +4,9 @@ import shaderCode from "./shader.wgsl?raw";
 import { Pane } from "tweakpane";
 import * as EssentialsPlugins from "@tweakpane/plugin-essentials";
 
-const WIDTH = 24;
-const HEIGHT = 24;
-const SAMPLES = 7;
+const WIDTH = 16;
+const HEIGHT = 16;
+const SAMPLES = 10;
 
 function generateRandomData(width: number, height: number, samples: number) {
     const pixels = width * height;
@@ -15,28 +15,65 @@ function generateRandomData(width: number, height: number, samples: number) {
     for (let p = 0; p < pixels; p++) {
         const offset = p * samples;
 
-        const values = new Array(samples)
-            .fill(0)
-            .map((_) => Math.floor(Math.random() * 10_000));
+        const t = p / (pixels - 1);
+        const ascending = t * 10_000;
+        const descending = 10_000 - ascending;
+        const sinWave = Math.sin(t * Math.PI) * 10_000;
+        const inverseSinWave = Math.abs(
+            Math.cos(t * Math.PI + Math.PI) * 10_000,
+        );
+        const rand1 = Math.random() * 10_000;
+        const rand_low = Math.random() * 5_000;
+        const rand_high = Math.random() * 5_000 + 5_000;
+        const zero = 0;
+        const one = 10_000;
+        const half = 5_000;
 
-        data.set(values, offset);
+        data.set(
+            [
+                ascending,
+                descending,
+                sinWave,
+                inverseSinWave,
+                rand1,
+                rand_low,
+                rand_high,
+                zero,
+                one,
+                half,
+            ],
+            offset,
+        );
     }
 
     return data;
 }
 
+const ndxOptions = {
+    ascending: 0,
+    descending: 1,
+    sin: 2,
+    inverseSin: 3,
+    rand: 4,
+    randLow: 5,
+    randHigh: 6,
+    zero: 7,
+    one: 8,
+    half: 9,
+};
+
 const settings = {
-    redIndex: 0,
+    redIndex: ndxOptions.ascending,
     redDomain: {
         min: 0,
         max: 10000,
     },
-    greenIndex: 1,
+    greenIndex: ndxOptions.zero,
     greenDomain: {
         min: 0,
         max: 10000,
     },
-    blueIndex: 2,
+    blueIndex: ndxOptions.zero,
     blueDomain: {
         min: 0,
         max: 10000,
@@ -49,57 +86,38 @@ async function main() {
     const pane = new Pane();
     pane.registerPlugin(EssentialsPlugins);
 
-    const settings = {
-        redIndex: 0,
-        redDomain: {
-            min: 0,
-            max: 10000,
-        },
-        greenIndex: 1,
-        greenDomain: {
-            min: 0,
-            max: 10000,
-        },
-        blueIndex: 2,
-        blueDomain: {
-            min: 0,
-            max: 10000,
-        },
-    };
-
+    // Red Channel
     const redFolder = pane.addFolder({
         title: "Red Channel",
     });
-    const blueFolder = pane.addFolder({
-        title: "Blue Channel",
-    });
-    const greenFolder = pane.addFolder({
-        title: "Green Channel",
-    });
     redFolder.addBinding(settings, "redIndex", {
-        min: 0,
-        max: SAMPLES - 1,
-        step: 1,
+        options: ndxOptions,
     });
     redFolder.addBinding(settings, "redDomain", {
         min: 0,
         max: 10_000,
         step: 100,
     });
+
+    // Green Channel
+    const greenFolder = pane.addFolder({
+        title: "Green Channel",
+    });
     greenFolder.addBinding(settings, "greenIndex", {
-        min: 0,
-        max: SAMPLES - 1,
-        step: 1,
+        options: ndxOptions,
     });
     greenFolder.addBinding(settings, "greenDomain", {
         min: 0,
         max: 10_000,
         step: 100,
     });
+
+    // Blue channel
+    const blueFolder = pane.addFolder({
+        title: "Blue Channel",
+    });
     blueFolder.addBinding(settings, "blueIndex", {
-        min: 0,
-        max: SAMPLES - 1,
-        step: 1,
+        options: ndxOptions,
     });
     blueFolder.addBinding(settings, "blueDomain", {
         min: 0,
@@ -168,7 +186,7 @@ async function main() {
 
     function updateDisplayUniformBufferValues(settings: Settings) {
         displayUniformBufferValuesU32.set(
-            [settings.redIndex, settings.blueIndex, settings.greenIndex],
+            [settings.redIndex, settings.greenIndex, settings.blueIndex],
             sampleIndexOffset,
         );
         displayUniformBufferValuesI32.set(

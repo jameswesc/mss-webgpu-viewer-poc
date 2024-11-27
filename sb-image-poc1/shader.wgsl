@@ -48,7 +48,7 @@ fn normalise_value(val: vec3<i32>, min_val: vec3<i32>, max_val: vec3<i32>) -> ve
     var vs_out : VertexOutput;
     vs_out.position = vec4f(quad_position, 0, 1);
     vs_out.texcoord = quad_position * 0.5 + 0.5;
-    vs_out.texcoord.y = 1 - vs_out.texcoord.y;
+    // vs_out.texcoord.y = 1 - vs_out.texcoord.y;
     // vs_out.color = colors[vertex_index];
 
     return vs_out;
