@@ -12,6 +12,8 @@ export async function loadDataFromURL() {
 
     console.info(image);
 
+    // const t0 = await image.getTileOrStrip(0, 0, 0);
+
     // CHEAT - I know the data I'm testing with is multiple
     // 16 bit integer bands. So here I'm hard coding it.
     const data = <ImageData>await image.readRasters();
