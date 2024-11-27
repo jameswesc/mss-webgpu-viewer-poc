@@ -8,9 +8,9 @@ Results look good. See a comparison to a QGIS rendering with the same settings b
 
 ### What mine looks like
 
-![qgis-screenshot](./readme-assets/screenshot-qgis.png)
+![qgis-screenshot](screenshots/mine.png)
 
 
 ### What QGIS looks like
 
-![my-screenshot](./readme-assets/screenshot-mine.png)
+![my-screenshot](screenshots/qgis.png)
