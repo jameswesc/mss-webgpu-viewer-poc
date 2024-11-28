@@ -6,21 +6,12 @@ import * as EssentialsPlugins from "@tweakpane/plugin-essentials";
 import { loadDataFromURL } from "./loadData";
 
 const settings = {
-    redIndex: 2,
-    redDomain: {
-        min: 174,
-        max: 2529,
+    index: 0,
+    domain: {
+        min: 0,
+        max: 10000,
     },
-    greenIndex: 1,
-    greenDomain: {
-        min: 312,
-        max: 2413,
-    },
-    blueIndex: 0,
-    blueDomain: {
-        min: 254,
-        max: 2038,
-    },
+    colormap: 1,
 };
 
 const ndxOptions = {
@@ -33,7 +24,13 @@ const ndxOptions = {
     oa_fmask: 6,
 };
 
-type Settings = typeof settings;
+const colormapOptions = {
+    greys: 0,
+    viridis: 1,
+    plasma: 2,
+    infero: 3,
+    magma: 4,
+};
 
 async function main() {
     // ---- Data Fetching ----
@@ -53,47 +50,44 @@ async function main() {
         minMaxValues.push([valuesCopy[0], valuesCopy[valuesCopy.length - 1]]);
     }
     const t1 = performance.now();
-    console.log(`Data sorted in ${t1 - t0} ms`);
+    console.log(`Data minmax using sort in ${t1 - t0} ms`);
 
     // ---- Tweakpane ----
 
+    function setSettingsDomainToMinMax() {
+        settings.domain.min = minMaxValues[settings.index][0];
+        settings.domain.max = minMaxValues[settings.index][1];
+        pane.refresh();
+    }
+
     const pane = new Pane();
     pane.registerPlugin(EssentialsPlugins);
-
-    const redFolder = pane.addFolder({
-        title: "Red Channel",
-    });
-    redFolder.addBinding(settings, "redIndex", {
+    const indexPane = pane.addBinding(settings, "index", {
         options: ndxOptions,
     });
-    redFolder.addBinding(settings, "redDomain", {
+    pane.addBinding(settings, "domain", {
         min: 0,
         max: 10_000,
         step: 1,
     });
 
-    const greenFolder = pane.addFolder({
-        title: "Green Channel",
-    });
-    greenFolder.addBinding(settings, "greenIndex", {
-        options: ndxOptions,
-    });
-    greenFolder.addBinding(settings, "greenDomain", {
-        min: 0,
-        max: 10_000,
-        step: 1,
+    setSettingsDomainToMinMax();
+
+    const btn = pane.addButton({
+        title: "Set to Min/Max",
+        label: "domain",
     });
 
-    const blueFolder = pane.addFolder({
-        title: "Blue Channel",
+    pane.addBinding(settings, "colormap", {
+        options: colormapOptions,
     });
-    blueFolder.addBinding(settings, "blueIndex", {
-        options: ndxOptions,
+
+    btn.on("click", () => {
+        setSettingsDomainToMinMax();
     });
-    blueFolder.addBinding(settings, "blueDomain", {
-        min: 0,
-        max: 10_000,
-        step: 1,
+
+    indexPane.on("change", () => {
+        setSettingsDomainToMinMax();
     });
 
     // ---- WebGPU ----
@@ -136,9 +130,9 @@ async function main() {
 
     // Display Uniforms
     const displayUniformBufferSize =
-        4 * 4 + // sample_index : 3 * u32 + padding
-        4 * 4 + // min_val      : 3 * i32 + padding
-        4 * 4; //  max_val      : 3 * i32 + padding
+        4 * 4 + // sample_index, colormap   : 3 * u32 + 1 * u32
+        4 * 4 + // min_val                  : 3 * i32 + padding
+        4 * 4; //  max_val                  : 3 * i32 + padding
     const displayUniformBuffer = device.createBuffer({
         label: "Display Uniforms Buffer",
         size: displayUniformBufferSize,
@@ -154,28 +148,22 @@ async function main() {
         displayUniformBufferValues,
     );
     const sampleIndexOffset = 0;
+    // const colormapOffset = 3;
     const minValOffset = 4;
     const maxValOffset = 8;
 
-    function updateDisplayUniformBufferValues(settings: Settings) {
+    function updateDisplayUniformBufferValues() {
         displayUniformBufferValuesU32.set(
-            [settings.redIndex, settings.greenIndex, settings.blueIndex],
+            [settings.index, settings.index, settings.index, settings.colormap],
             sampleIndexOffset,
         );
+
         displayUniformBufferValuesI32.set(
-            [
-                settings.redDomain.min,
-                settings.greenDomain.min,
-                settings.blueDomain.min,
-            ],
+            [settings.domain.min, settings.domain.min, settings.domain.min],
             minValOffset,
         );
         displayUniformBufferValuesI32.set(
-            [
-                settings.redDomain.max,
-                settings.greenDomain.max,
-                settings.blueDomain.max,
-            ],
+            [settings.domain.max, settings.domain.max, settings.domain.max],
             maxValOffset,
         );
         device.queue.writeBuffer(
@@ -185,7 +173,7 @@ async function main() {
         );
     }
 
-    updateDisplayUniformBufferValues(settings);
+    updateDisplayUniformBufferValues();
 
     const uniformsBindGroup = device.createBindGroup({
         label: "Uniforms Bind Group",
@@ -254,8 +242,9 @@ async function main() {
     }
 
     renderOnResizeObserver(canvas, render);
+
     pane.on("change", () => {
-        updateDisplayUniformBufferValues(settings);
+        updateDisplayUniformBufferValues();
         render();
     });
 }

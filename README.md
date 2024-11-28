@@ -38,3 +38,9 @@ Rendering an image onto a quad from data in a single interleaved storage buffer.
 Using the same rendering technique as the previous PoC, this time we load a Landsat based [Digital Earth Australia (DEA) baseline surface reflectance data](https://www.ga.gov.au/scientific-topics/dea/dea-data-and-products/dea-surface-reflectance). This specific dataset was exported from the [DEA map](https://maps.dea.ga.gov.au/#share=s-02TACjEp7EBe0FBXTOYPXvGts7f).
 
 ![poc3 screenshot](03-landsat-image/screenshots/mine.png)
+
+## [04. Single band](04-single-band/)
+
+This PoC continues on from [03-landsat-image](03-landsat-image) and uses the same Landsat image. However it only renders a single band of the dataset using an approximation for some matplotlib colourmaps.
+
+![poc4 screenshot](04-single-band/screenshots/s1.png)
