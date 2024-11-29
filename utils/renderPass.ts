@@ -1,6 +1,7 @@
 export function createDefaultRenderPass(
     device: GPUDevice,
     context: GPUCanvasContext,
+    pipeline: GPURenderPipeline,
 ) {
     const encoder = device.createCommandEncoder({
         label: "Default render pass encoder",
@@ -20,6 +21,7 @@ export function createDefaultRenderPass(
     };
 
     const pass = encoder.beginRenderPass(renderPassDescriptor);
+    pass.setPipeline(pipeline);
 
     return { encoder, pass };
 }

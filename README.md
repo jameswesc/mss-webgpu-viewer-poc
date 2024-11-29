@@ -44,3 +44,9 @@ Using the same rendering technique as the previous PoC, this time we load a Land
 This PoC continues on from [03-landsat-image](03-landsat-image) and uses the same Landsat image. However it only renders a single band of the dataset using an approximation for some matplotlib colourmaps.
 
 ![poc4 screenshot](04-single-band/screenshots/s1.png)
+
+## [05. Generated image texture](05-generated-image-texture/)
+
+Using `texture_2d_array` instead of a single storage buffer.
+
+![poc5 screenshot](05-generated-image-texture/screenshots/s1.png)

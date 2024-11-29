@@ -77,4 +77,5 @@ fn normalise_value(val: vec3<i32>, min_val: vec3<i32>, max_val: vec3<i32>) -> ve
     let color_val : vec3f = normalise_value(raw_val, display_uniforms.min_val, display_uniforms.max_val);
 
     return vec4f(color_val, 1);
+
 }
