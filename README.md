@@ -50,3 +50,11 @@ This PoC continues on from [03-landsat-image](03-landsat-image) and uses the sam
 Using `texture_2d_array` instead of a single storage buffer.
 
 ![poc5 screenshot](05-generated-image-texture/screenshots/s1.png)
+
+## [06. Landsat textures](06-landsat-textures/)
+
+A culmination of the PoCs so far. Allows for 3 drawing modes: Single band, multi band and spectral index.
+
+![Single Band](06-landsat-textures/screenshots/s1.png)
+![Multi Band 1](06-landsat-textures/screenshots/s3.png)
+![NDWI](06-landsat-textures/screenshots/s5.png)
