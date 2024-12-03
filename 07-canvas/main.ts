@@ -27,8 +27,22 @@ async function main() {
     });
 
     const pipeline = device.createRenderPipeline({
-        vertex: { module },
         layout: "auto",
+        vertex: {
+            module,
+            buffers: [
+                {
+                    arrayStride: 16, // vec2f + vec2f
+                    stepMode: "instance",
+                    attributes: [
+                        // Size
+                        { shaderLocation: 0, offset: 0, format: "float32x2" },
+                        // Offset
+                        { shaderLocation: 1, offset: 8, format: "float32x2" },
+                    ],
+                },
+            ],
+        },
         fragment: {
             module,
             targets: [{ format: preferredCanvasFormat }],
@@ -63,6 +77,17 @@ async function main() {
             },
         ],
     });
+
+    const vertexBuffer = device.createBuffer({
+        size: 4 * 16,
+        usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+
+    const vertexBufferValues = new Float32Array([
+        200, 100, 0, 100, 400, 100, 0, -100,
+    ]);
+
+    device.queue.writeBuffer(vertexBuffer, 0, vertexBufferValues);
 
     const eventManager = new EventManager(canvas, {});
 
@@ -125,10 +150,11 @@ async function main() {
         pass.setPipeline(pipeline);
 
         // Set bind grups
+        pass.setVertexBuffer(0, vertexBuffer);
         pass.setBindGroup(0, bindGroup);
 
         // Draw
-        pass.draw(6);
+        pass.draw(6, 2);
 
         // End Pass
         pass.end();
