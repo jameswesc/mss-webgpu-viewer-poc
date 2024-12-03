@@ -10,7 +10,6 @@ type ResizeFunction = (details: SizeDetails) => void;
 export function canvasResizeObserver(
     canvas: HTMLCanvasElement,
     onResize: ResizeFunction,
-    setCanvasSize = true,
 ) {
     const observer = new ResizeObserver((entries) => {
         const entry = entries[0];
@@ -27,11 +26,6 @@ export function canvasResizeObserver(
 
         width = Math.max(1, width);
         height = Math.max(1, height);
-
-        if (setCanvasSize) {
-            canvas.width = width;
-            canvas.height = height;
-        }
 
         onResize({
             width,

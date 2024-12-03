@@ -84,7 +84,7 @@ async function main() {
     });
 
     const vertexBufferValues = new Float32Array([
-        200, 100, 0, 100, 400, 100, 0, -100,
+        200, 200, 20, 20, 400, 200, 20, 240,
     ]);
 
     device.queue.writeBuffer(vertexBuffer, 0, vertexBufferValues);
@@ -98,7 +98,7 @@ async function main() {
         },
         panmove: (e) => {
             state.pan.x = e.deltaX;
-            state.pan.y = -e.deltaY;
+            state.pan.y = e.deltaY;
             render();
         },
         panend: () => {
@@ -111,24 +111,42 @@ async function main() {
     });
 
     function render() {
-        const effectiveZoom = Math.pow(Math.E, state.zoom);
-        // Update Uniforms
+        canvas.width = state.width;
+        canvas.height = state.height;
+
+        // ---- Projection Matrix ----
+        // We want to warp space from clip space x: -1 <-> 1 and y: -1 <-> 1
+        // to screen space x: 0 <-> width and y: height <-> 0
+
+        // Shift left 1 unit, up 1 unit
+        // x: 0 <-> 2, y: 0 <-> 2
+        const shiftMatrix = mat3.translation([-1, 1]);
+        // Scale down by to half width and height
+        // x: 0 <-> width, y: height <-> 0
         const scaleMatrix = mat3.scaling([
             2 / state.clientWidth,
-            2 / state.clientHeight,
+            -2 / state.clientHeight,
         ]);
-        const panMatrix = mat3.translation([
-            state.position.x + state.pan.x,
-            state.position.y + state.pan.y,
-        ]);
-        const zoomMatrix = mat3.scaling([effectiveZoom, effectiveZoom]);
-
         let projectionMatrix = mat3.identity();
+        projectionMatrix = mat3.multiply(projectionMatrix, shiftMatrix);
         projectionMatrix = mat3.multiply(projectionMatrix, scaleMatrix);
-        projectionMatrix = mat3.multiply(projectionMatrix, panMatrix);
-        projectionMatrix = mat3.multiply(projectionMatrix, zoomMatrix);
 
-        viewUniformValues.set(projectionMatrix);
+        // ---- View Matrix ----
+        const effectiveZoom = Math.pow(Math.E, state.zoom);
+        const xPos = state.position.x + state.pan.x;
+        const yPos = state.position.y + state.pan.y;
+        let viewMatrix = mat3.identity();
+        const panMatrix = mat3.translation([xPos, yPos]);
+        const zoomMatrix = mat3.scaling([effectiveZoom, effectiveZoom]);
+        viewMatrix = mat3.multiply(viewMatrix, panMatrix);
+        viewMatrix = mat3.multiply(viewMatrix, zoomMatrix);
+
+        const projectionViewMatrix = mat3.multiply(
+            projectionMatrix,
+            viewMatrix,
+        );
+
+        viewUniformValues.set(projectionViewMatrix);
         device.queue.writeBuffer(viewUniformBuffer, 0, viewUniformValues);
 
         // Create Encoder and Pass

@@ -26,12 +26,12 @@ struct VertexOutput {
 
 
     let quad_points = array(
-        vec2f(-0.5, -0.5),  // left bottom
-        vec2f( 0.5, -0.5),  // right bottom
-        vec2f(-0.5,  0.5),  // left top
-        vec2f(-0.5,  0.5),  // left top
-        vec2f( 0.5, -0.5),  // right bottom
-        vec2f( 0.5,  0.5),  // right top
+        vec2f(0, 0),  // left bottom
+        vec2f(1, 0),  // right bottom
+        vec2f(0, 1),  // left top
+        vec2f(0, 1),  // left top
+        vec2f(1, 0),  // right bottom
+        vec2f(1, 1),  // right top
     );
 
     let quad_position = quad_points[vertex_index] * vert.size + vert.offset;
