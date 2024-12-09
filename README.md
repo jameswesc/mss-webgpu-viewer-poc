@@ -58,3 +58,10 @@ A culmination of the PoCs so far. Allows for 3 drawing modes: Single band, multi
 ![Single Band](06-landsat-textures/screenshots/s1.png)
 ![Multi Band 1](06-landsat-textures/screenshots/s3.png)
 ![NDWI](06-landsat-textures/screenshots/s5.png)
+
+## [07. Canvas](07-canvas/) & [08. Canvas 3D Ortho](08-canvas-3d-ortho/)
+
+Not very interesting PoCs. Just creating a movable canvas so I can lay out multiple images. I'm using
+[mjolnir.js](https://github.com/uber-web/mjolnir.js) to handle the user input. PoC07 used a 2D canvas
+and used 3x3 matrices to handle the transformations. PoC08 used a 3D canvas and used more standard
+view and projection 4x4 matrices.
