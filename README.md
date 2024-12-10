@@ -65,3 +65,10 @@ Not very interesting PoCs. Just creating a movable canvas so I can lay out multi
 [mjolnir.js](https://github.com/uber-web/mjolnir.js) to handle the user input. PoC07 used a 2D canvas
 and used 3x3 matrices to handle the transformations. PoC08 used a 3D canvas and used more standard
 view and projection 4x4 matrices.
+
+## [09. Multi View](09-multi-view/)
+
+Visualises all possible band combinations on an interactive canvas.
+
+![S1](09-multi-view/screenshots/s1.png)
+![S2](09-multi-view/screenshots/s2.png)
