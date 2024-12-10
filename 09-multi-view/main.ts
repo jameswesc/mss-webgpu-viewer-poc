@@ -115,14 +115,14 @@ async function main() {
     const samples = imageData.bands.length;
     const texture = device.createTexture({
         size: [imageData.width, imageData.height, samples],
-        format: "r16sint",
+        format: "r32float",
         usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
     });
     imageData.bands.forEach((band, i) => {
         device.queue.writeTexture(
             { texture, origin: { z: i } },
             band.values,
-            { bytesPerRow: imageData.width * 2 },
+            { bytesPerRow: imageData.width * 4 },
             {
                 width: imageData.width,
                 height: imageData.height,
@@ -139,8 +139,8 @@ async function main() {
     const multiBandUnitSize =
         unitSize.mat4x4f +                  // model_matrix
         unitSize.vec3u + unitSize.pad4 +    // band_index
-        unitSize.vec3i + unitSize.pad4 +    // min_val
-        unitSize.vec3i + unitSize.pad4; // max_val
+        unitSize.vec3f + unitSize.pad4 +    // min_val
+        unitSize.vec3f + unitSize.pad4; // max_val
 
     const multiBandBufferSize = numInstances * multiBandUnitSize;
     const multiBandBuffer = device.createBuffer({
@@ -150,7 +150,7 @@ async function main() {
     const multiBandData = new ArrayBuffer(multiBandBufferSize);
     const multiBandDataF32 = new Float32Array(multiBandData);
     const multiBandDataU32 = new Uint32Array(multiBandData);
-    const multiBandDataI32 = new Uint32Array(multiBandData);
+    // const multiBandDataI32 = new Uint32Array(multiBandData);
 
     for (let z = 0; z < samples; z++) {
         for (let y = 0; y < samples; y++) {
@@ -165,8 +165,8 @@ async function main() {
         let offset = (instanceIndex * multiBandUnitSize) / 4;
         const modelMatrix = multiBandDataF32.subarray(offset + 0, offset + 16);
         const bandIndex = multiBandDataU32.subarray(offset + 16, offset + 19);
-        const minVal = multiBandDataI32.subarray(offset + 20, offset + 23);
-        const maxVal = multiBandDataI32.subarray(offset + 24, offset + 27);
+        const minVal = multiBandDataF32.subarray(offset + 20, offset + 23);
+        const maxVal = multiBandDataF32.subarray(offset + 24, offset + 27);
 
         const gap = 20;
         const blockHeight = samples * (imageData.height + gap);

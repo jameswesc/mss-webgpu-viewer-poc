@@ -3,7 +3,7 @@ import { fromUrl } from "geotiff";
 export type Band = {
     min: number;
     max: number;
-    values: Int16Array;
+    values: Float32Array;
 };
 
 export type ImageData = {
@@ -13,13 +13,11 @@ export type ImageData = {
 };
 
 export async function loadData(): Promise<ImageData> {
-    const tiff = await fromUrl("/landsat.tiff");
+    const tiff = await fromUrl("/kakadu-sentinel-2.tiff");
     const image = await tiff.getImage();
 
     const width = image.getWidth();
     const height = image.getHeight();
-
-    // console.log(image);
 
     const imageData: ImageData = {
         width,
@@ -29,10 +27,8 @@ export async function loadData(): Promise<ImageData> {
 
     const rasters = await image.readRasters();
 
-    // console.log(rasters);
-
     for (let i = 0; i < rasters.length - 1; i++) {
-        const values = rasters[i] as Int16Array;
+        const values = new Float32Array(rasters[i] as Float64Array);
 
         let min = Infinity,
             max = 0;
@@ -53,6 +49,8 @@ export async function loadData(): Promise<ImageData> {
 
         imageData.bands.push(band);
     }
+
+    console.log(imageData);
 
     return imageData;
 }
