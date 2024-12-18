@@ -83,7 +83,7 @@ async function main() {
         width: number,
         height: number,
     ) {
-        console.log("UPDATING VIEW", state, width, height);
+        // console.log("UPDATING VIEW", state, width, height);
 
         const scale = Math.exp(state.zoom);
 

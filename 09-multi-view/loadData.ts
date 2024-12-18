@@ -50,7 +50,7 @@ export async function loadData(): Promise<ImageData> {
         imageData.bands.push(band);
     }
 
-    console.log(imageData);
+    // console.log(imageData);
 
     return imageData;
 }
